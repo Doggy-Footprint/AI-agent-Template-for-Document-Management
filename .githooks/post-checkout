@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# One-shot template bootstrap: empties README.md on the first checkout
+# (including the one `git worktree add` performs), then removes itself so
+# it never runs again. Installed via scripts/install-hooks.sh.
+#
+# Note: this cannot fire on the initial `git clone` itself -- Git never
+# populates .git/hooks from a repo's tracked files, so the hook only takes
+# effect starting from the first checkout/switch/worktree-add *after*
+# scripts/install-hooks.sh has been run once.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+readme="$repo_root/README.md"
+
+if [ -f "$readme" ]; then
+  : > "$readme"
+fi
+
+rm -- "$0"
