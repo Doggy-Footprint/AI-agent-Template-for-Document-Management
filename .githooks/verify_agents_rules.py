@@ -5,8 +5,8 @@ Covers only rules that can be verified without judgement calls:
   - Index & Staleness Management (file naming, index.md/stale.md presence
     and structure)
   - Shared Comment & Docstring Synchronization (synced id / version / count
-    consistency between code and synced-comments/<id>.md, plus recomputing
-    synced_id as a hash of participating files' non-comment content)
+    consistency between code and synced-comments/<id>.md, plus checking the
+    tracking file's code_hash against participating files' non-comment content)
 
 Exit code is non-zero if any rule is violated.
 """
@@ -99,8 +99,8 @@ def check_index_and_staleness(errors: list):
 
 
 # Line-comment markers by extension, used to strip comments before hashing
-# a file's content (AGENTS.md rule 1: synced_id is a fingerprint of the
-# non-comment code). Extensions without a known marker are hashed as-is.
+# a file's content (AGENTS.md rule 2: code_hash fingerprints the non-comment
+# code). Extensions without a known marker are hashed as-is.
 HASH_COMMENT_EXTS = {".py", ".sh", ".yaml", ".yml", ".toml", ".rb"}
 SLASH_COMMENT_EXTS = {
     ".js", ".jsx", ".ts", ".tsx", ".go", ".rs", ".java", ".kt",
@@ -123,7 +123,7 @@ def strip_comments(path: Path, text: str) -> str:
     )
 
 
-def compute_synced_id(paths: list) -> str:
+def compute_code_hash(paths: list) -> str:
     ordered = sorted(paths, key=lambda p: p.name)
     combined = "".join(
         strip_comments(p, p.read_text(encoding="utf-8", errors="replace"))
@@ -173,8 +173,11 @@ def check_synced_comments(errors: list):
         fm = parse_synced_frontmatter(
             tracking_file.read_text(encoding="utf-8", errors="replace")
         )
-        if fm is None or "version" not in fm or "count" not in fm:
-            errors.append(f"synced-comments/{sid}.md: missing/invalid frontmatter (version, count)")
+        if fm is None or "version" not in fm or "count" not in fm or "code_hash" not in fm:
+            errors.append(
+                f"synced-comments/{sid}.md: missing/invalid frontmatter "
+                f"(version, count, code_hash)"
+            )
             continue
 
         fm_version = int(fm["version"])
@@ -188,13 +191,14 @@ def check_synced_comments(errors: list):
             )
         elif not is_obsolete:
             participant_paths = [REPO_ROOT / file_name for file_name, _, _ in locs]
-            expected_sid = compute_synced_id(participant_paths)
-            if expected_sid != sid:
+            expected_hash = compute_code_hash(participant_paths)
+            if expected_hash != fm["code_hash"]:
                 errors.append(
                     f"synced id {sid}: underlying (non-comment) code in "
-                    f"{[l[0] for l in locs]} no longer hashes to this ID "
-                    f"(recomputed {expected_sid}); the participating code changed "
-                    f"without regenerating synced_id per AGENTS.md rule 1"
+                    f"{[l[0] for l in locs]} no longer matches code_hash "
+                    f"{fm['code_hash']} in synced-comments/{sid}.md (recomputed "
+                    f"{expected_hash}); bump the version and update code_hash "
+                    f"per AGENTS.md rule 4"
                 )
 
         actual_count = len(locs)

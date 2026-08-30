@@ -28,4 +28,4 @@ Ready-to-go template for new project.
 
 ## synced-comment
 
-Currently hash of entire file content except comments concatenated in alphanumeric order of filenames are used as `synced_id`. Change this as your team needs. But I actually recomment to keep your files small and modular
+`synced_id` is a random ID; its tracking file's `code_hash` is a hash of participating files' content except comments, concatenated in alphanumeric order of filenames, used to detect when the code drifts from the documented comment. Change this as your team needs. But I actually recommend to keep your files small and modular
