@@ -9,6 +9,18 @@
 ## Principles
 1. **Code is the Ground Truth**: Write documentation only to explain non-obvious rationale, behaviors, and constraints that cannot be inferred directly from the code.
 
+  ## Comment Enforcement
+
+  Default to no new comments or docstrings.
+
+  A comment/docstring is allowed only when it records a non-obvious:
+  - design constraint,
+  - external-system,
+  - safety/security invariant, or
+  - reason a seemingly odd implementation is necessary.
+
+  Do not use comments to narrate code, restate names/types/control flow, provide tutorials, or justify ordinary implementation choices.
+
 ## Index & Staleness Management
 1. Every agent-managed directory (e.g., `/adr`) must contain `index.md` and `stale.md`.
 2. File Naming: `<16-char-hex-id>-<kebab-case-name>.md` (e.g., `3f8a9c12b0e45d67-auth-flow.md`).
