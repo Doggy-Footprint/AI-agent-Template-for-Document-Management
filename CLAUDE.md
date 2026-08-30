@@ -25,7 +25,7 @@
 
 Follow these rules when identical docstrings or comments must be maintained across multiple locations:
 
-1.	Generate a synced ID: Generate a 48-bit random hexadecimal ID (12 hex characters, e.g., a1b2c3d4e5f6). It never changes for the life of the shared comment.
+1.	Generate a synced ID: Generate a 48-bit random hexadecimal ID (12 hex characters, e.g., a1b2c3d4e5f6).
 2.	Create the tracking file: Create a file at `synced-comments/<synced_id>.md` with the following structure. `code_hash` fingerprints the participating files' non-comment content (each file's content with comments stripped, concatenated in alphanumeric order of filename, hashed):
 
 ````
