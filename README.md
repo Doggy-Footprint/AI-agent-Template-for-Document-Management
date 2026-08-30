@@ -10,6 +10,8 @@
 │   ├── index.md - index 파일
 │   └── stale.md - 폐기 표시
 ├── myTODO.md (.gitignore) - 프로젝트 관리용 노트
+├── synced-comments
+│   └── <synced_id>.md
 └── ref
     ├── feats
     │   ├── <id>-multi-language-dependency-analyzers.md - 실제 feature
@@ -23,3 +25,7 @@
 ```
 
 Ready-to-go template for new project.
+
+## synced-comment
+
+Currently hash of entire file content except comments concatenated in alphanumeric order of filenames are used as `synced_id`. Change this as your team needs. But I actually recomment to keep your files small and modular
