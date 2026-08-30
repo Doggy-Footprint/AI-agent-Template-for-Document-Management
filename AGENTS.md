@@ -25,7 +25,7 @@
 
 Follow these rules when identical docstrings or comments must be maintained across multiple locations:
 
-1.	Generate a synced ID: Generate a 48-bit random hexadecimal ID (12 hex characters, e.g., a1b2c3d4e5f6).
+1.	Generate a synced ID: Take each participating file's full content with comments stripped, concatenate them in alphanumeric order of filename, and hash the result; use the first 12 hex characters as `synced_id` (e.g., a1b2c3d4e5f6). This makes the ID a fingerprint of the underlying code, so it changes automatically whenever that code changes.
 2.	Create the tracking file: Create a file at `synced-comments/<synced_id>.md` with the following structure:
 
 ````
@@ -42,10 +42,10 @@ count: <number of associated code locations>
 - Initial creation.
 ````
 3.	Annotate in code: In all associated code locations, include the synchronization tag: `synced id: <synced_id>, version: <n>, count: <n>`
-4. Handle content updates: When the shared content changes,
-- Increment the version in the frontmatter and update the version: tag across all linked code locations.
-- Add a new entry under the # Version Log section.
-5.	Version bump trigger: Any code modification in a file that alters or directly affects a block labeled with a synced id triggers a required version bump for that ID.
+4. Handle content updates:
+- If only the shared comment/docstring text changes (underlying code untouched): increment the version in the frontmatter, update the version: tag across all linked code locations, and add a new entry under # Version Log.
+- If the underlying non-comment code in any participating file changes: recompute `synced_id` per rule 1. Create the new `synced-comments/<new_synced_id>.md` (carrying the version/count history forward, version incremented), update the tag in every participating file to the new ID and version, and mark the old tracking file `obsolete: true` with the reason (superseded by code change) in its Version Log.
+5.	Version bump trigger: Any code modification that changes the recomputed `synced_id` (rule 1), or any deliberate edit to the shared comment/docstring text, requires the corresponding update in rule 4.
 6. Deprecation & Removal: When removing the shared content entirely.
 - Remove all corresponding comments/docstrings from every referenced code location.
 - Increment the document's version, record the removal reason in the version log, and add obsolete: true to the frontmatter.
